@@ -1,8 +1,9 @@
 package com.example.test.controller;
 import com.example.test.repo.StudentRepo;
+import com.example.test.services.StudentService;
 
 import java.util.Optional;
-
+import java.util.List;
 import com.example.test.model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,42 +21,44 @@ import org.springframework.web.bind.annotation.RestController;
 public class details {
     
     @Autowired
-    StudentRepo sturepo; 
+    StudentService stuservice; 
 
     @GetMapping("/getdata")
     public Iterable<Student> getdata()
     {
-        return sturepo.findAll();
+        return stuservice.getAllStudents();
     }
 
     @GetMapping("/findbyid")
     public Optional<Student> getstu(@RequestParam int id)
     {
-        return sturepo.findById(id);
+        return stuservice.findById(id);
 
     }
 
     @PostMapping("/addstudent")
-    public Student addStudent(@RequestBody Student stu)
+    public String addStudent(@RequestBody Student stu)
     {
-        return sturepo.save(stu);
+        return stuservice.addStudent(stu);
     }
 
     @PutMapping("/updatestudent")
     public String updateStudent(@RequestBody Student stu)
     {
-        // sturepo.findById(stu.getSid());
-        sturepo.deleteById(stu.getSid());
-        sturepo.save(stu);
-        return "UPDATED";
+        return stuservice.updateStudent(stu);
         
     }
 
     @DeleteMapping("/deletestudent")
     public String deleteStudent(@RequestBody int sid)
     {
-        sturepo.deleteById(sid);
-        return "RECORD DELETED";
+        return stuservice.deleteStudent(sid);
+    }
+
+    @GetMapping("/getstubyaddress")
+    public List<Student> getstubyaddress(@RequestParam String city, String name)
+    {
+        return stuservice.findDesired(city, name);
     }
 }
 
