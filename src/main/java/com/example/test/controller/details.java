@@ -1,5 +1,4 @@
 package com.example.test.controller;
-import com.example.test.repo.StudentRepo;
 import com.example.test.services.StudentService;
 
 import java.util.Optional;
@@ -7,6 +6,9 @@ import java.util.List;
 import com.example.test.model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,9 @@ public class details {
     
     @Autowired
     StudentService stuservice; 
+
+    @Autowired
+	private AuthenticationManager authenticationManager;
 
     @GetMapping("/getdata")
     public Iterable<Student> getdata()
@@ -59,6 +64,23 @@ public class details {
     public List<Student> getstubyaddress(@RequestParam String city, String name)
     {
         return stuservice.findDesired(city, name);
+    }
+
+    @PostMapping("/authenticate")
+    public String createAuthenticationToken(@RequestBody AuthInput authenticationRequest) throws Exception 
+    {
+        try {
+			authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
+			);
+		}
+		catch (BadCredentialsException e) {
+			// throw new Exception("Incorrect username or password", e);
+            return "Wrong Credentials";
+		}
+
+        return "Successfully logged in";
+
     }
 }
 
