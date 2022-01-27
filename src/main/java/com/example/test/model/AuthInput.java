@@ -1,5 +1,6 @@
 package com.example.test.model;
 
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 

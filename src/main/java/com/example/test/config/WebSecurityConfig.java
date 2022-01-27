@@ -1,5 +1,6 @@
 package com.example.test.config;
 
+import com.example.test.filter.JwtFilterAuth;
 import com.example.test.services.MyUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
@@ -17,6 +20,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     
     @Autowired
     private MyUserService myUserService;
+     @Autowired
+	 private JwtFilterAuth jwtRequestFilter;
 
     @Override
     protected void configure (AuthenticationManagerBuilder auth) throws Exception
@@ -28,10 +33,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure (HttpSecurity httpSecurity) throws Exception
     {
         httpSecurity.csrf().disable()
-				.authorizeRequests().antMatchers("/authenticate").permitAll().
-						anyRequest().authenticated().and().
+				.authorizeRequests().antMatchers("/authenticate").permitAll()
+                .antMatchers("/getdata").hasAuthority("admin")
+                        .antMatchers("/findbyid").hasAuthority("user")
+                .anyRequest().authenticated().and().
 						exceptionHandling().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		 httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Override
@@ -39,5 +48,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     public AuthenticationManager authenticationManagerBean() throws Exception{
         return super.authenticationManagerBean();
     }
+
+    @Bean
+	public PasswordEncoder passwordEncoder() {
+		return NoOpPasswordEncoder.getInstance();
+	}
 
 }
