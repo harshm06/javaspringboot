@@ -4,6 +4,7 @@ import com.example.test.filter.JwtFilterAuth;
 import com.example.test.services.MyUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,6 +15,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
@@ -34,8 +37,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     {
         httpSecurity.csrf().disable()
 				.authorizeRequests().antMatchers("/authenticate").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 .antMatchers("/getdata").hasAuthority("admin")
                         .antMatchers("/findbyid").hasAuthority("user")
+                .antMatchers("/getDataViaConsul").hasAnyAuthority("user", "admin")
                 .anyRequest().authenticated().and().
 						exceptionHandling().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -53,5 +58,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 	public PasswordEncoder passwordEncoder() {
 		return NoOpPasswordEncoder.getInstance();
 	}
+
+    @LoadBalanced
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
 }

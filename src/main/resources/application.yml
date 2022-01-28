@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: crudapp
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instanceId: ${spring.application.name}
+      config:
+        fail-fast: true
+        format: yaml
+        data-key: data
