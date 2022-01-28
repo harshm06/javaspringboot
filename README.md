@@ -1,3 +1,3 @@
 # javaspringboot
 Practice repo for spring (java)
-Added auth in spring boot using database users and passwords
+Added consul service discovery and configguration
